@@ -29,7 +29,7 @@ export default async function WatchAcPage({ params }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-5">
-      <HistoryRecorder item={{ url: `https://anichin.local/${slug}`, title: d.title, source: 'anichin' }} />
+      <HistoryRecorder item={{ url: `https://anichin.local/${slug}`, title: d.title, image: d.seriesImage, source: 'anichin' }} />
 
       {d.seriesSlug && (
         <Link href={`/anime-ac/${d.seriesSlug}`} className="mb-3 inline-block text-sm text-ink-faint hover:text-accent">
