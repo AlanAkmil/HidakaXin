@@ -1,56 +1,42 @@
 import Link from 'next/link';
-import webtoons from '../../../../../lib/webtoonsScraper';
-import RetryImage from '../../../../../components/RetryImage';
 import HistoryRecorder from '../../../../../components/HistoryRecorder';
 
-export const revalidate = 300;
+// Webtoons.com loads its actual comic panel images via client-side
+// JavaScript after the page loads — a server-side fetch (like everything
+// else in this app) only ever sees transparent placeholders in the raw
+// HTML, never the real panel image URLs. That's a platform limitation, not
+// something fixable with better selectors, so this reader honestly sends
+// people to read the chapter on webtoons.com itself instead of pretending
+// to show it in-app.
 
-async function getImages(url) {
-  try {
-    const images = await webtoons.episodeImages(url);
-    return images;
-  } catch {
-    return null;
-  }
-}
-
-export default async function WebtoonReaderPage({ params }) {
+export default function WebtoonReaderPage({ params }) {
   const url = decodeURIComponent(params.slug);
-  const images = await getImages(url);
-
-  if (!images) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-ink-soft">Gagal memuat chapter ini.</p>
-        <Link href="/komik" className="mt-4 inline-block font-semibold text-accent">← Kembali ke Komik</Link>
-      </div>
-    );
-  }
 
   return (
-    <div className="mx-auto max-w-2xl px-0 py-0 sm:px-4 sm:py-5">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-16 text-center">
       <HistoryRecorder item={{ url, title: 'Webtoons episode', source: 'webtoons' }} />
 
-      <div className="sticky top-[52px] z-20 flex items-center justify-between border-b border-line bg-paper/95 px-4 py-3 backdrop-blur sm:rounded-xl sm:border">
-        <Link href="/komik" className="flex items-center gap-1 text-sm font-semibold text-ink-soft hover:text-accent">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
-          </svg>
-          Kembali
-        </Link>
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent-50">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff5a36" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7v7M21 3l-9 9M5 5h6M5 5v14h14v-6" />
+        </svg>
       </div>
-
-      {images.length === 0 && (
-        <p className="mx-4 mt-6 rounded-xl border border-line bg-white p-6 text-center text-ink-soft shadow-card">
-          Gagal memuat halaman chapter ini. Sumbernya mungkin lagi bermasalah.
-        </p>
-      )}
-
-      <div className="flex flex-col">
-        {images.map((src, i) => (
-          <RetryImage key={i} src={src} alt={`Halaman ${i + 1}`} index={i + 1} className="w-full" />
-        ))}
-      </div>
+      <p className="font-display text-lg font-extrabold text-ink">Baca di Webtoons.com</p>
+      <p className="mt-2 text-sm text-ink-soft">
+        Webtoons.com muat gambar chapter-nya lewat JavaScript, jadi nggak bisa ditampilin langsung di sini. Ketuk
+        tombol di bawah buat baca chapter ini di situs resminya.
+      </p>
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-6 rounded-full bg-accent px-6 py-3 text-sm font-bold text-white"
+      >
+        Buka Chapter →
+      </a>
+      <Link href="/komik" className="mt-4 text-sm font-semibold text-ink-faint hover:text-accent">
+        ← Kembali ke Komik
+      </Link>
     </div>
   );
 }
